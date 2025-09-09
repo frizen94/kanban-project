@@ -9,7 +9,8 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog";
-import { Users, Search, X, Eye, LayoutGrid } from "lucide-react";
+import { Users, Search, X, Eye, LayoutGrid, ArrowLeft } from "lucide-react";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BoardMemberManager } from "@/components/board-member-manager";
@@ -33,6 +34,7 @@ export function BoardHeader({ board, currentView, onViewChange }: BoardHeaderPro
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { updateList, setCardVisibilityFilter } = useBoardContext();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [, setLocation] = useLocation();
   
   useEffect(() => {
     // Atualiza o filtro de visibilidade de cartões quando a consulta de pesquisa muda
@@ -88,6 +90,18 @@ export function BoardHeader({ board, currentView, onViewChange }: BoardHeaderPro
         {/* Header principal */}
         <div className="flex flex-wrap items-center justify-between py-2">
           <div className="flex items-center space-x-4 mb-2 md:mb-0">
+            {/* Botão de voltar */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation('/dashboard')}
+              className="hover:bg-white/20 text-white px-2 py-1"
+              data-testid="button-back-dashboard"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar
+            </Button>
+            <div className="h-6 border-r border-white/30"></div>
             {isEditing ? (
               <input
                 type="text"
