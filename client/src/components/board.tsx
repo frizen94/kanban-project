@@ -53,38 +53,45 @@ export function Board({ boardId }: BoardProps) {
   };
 
   return (
-    <>
+    <div className="board-background min-h-screen">
       {currentBoard && <BoardHeader board={currentBoard} />}
-      <main className="container mx-auto px-4 py-4">
+      <main className="container-fluid py-6">
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="all-lists" direction="horizontal" type="LIST">
             {(provided) => (
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className="board-lists flex space-x-4 pb-6 pt-2 overflow-x-auto min-h-[calc(100vh-160px)] items-start"
+                className="board-lists flex space-x-6 pb-8 pt-4 overflow-x-auto min-h-[calc(100vh-200px)] items-start"
               >
                 {lists.map((list, index) => (
-                  <List 
-                    key={list.id} 
-                    list={list} 
-                    index={index}
-                    openCardModal={openCardModal}
-                  />
+                  <div key={list.id} className="floating" style={{animationDelay: `${index * 0.1}s`}}>
+                    <List 
+                      list={list} 
+                      index={index}
+                      openCardModal={openCardModal}
+                    />
+                  </div>
                 ))}
                 {provided.placeholder}
-                <AddList boardId={boardId} />
+                <div className="floating-delayed">
+                  <AddList boardId={boardId} />
+                </div>
               </div>
             )}
           </Droppable>
         </DragDropContext>
 
-        <CardModal 
-          cardId={activeCardId} 
-          isOpen={isCardModalOpen} 
-          onClose={closeCardModal} 
-        />
+        {activeCardId && (
+          <div className="modal-backdrop">
+            <CardModal 
+              cardId={activeCardId} 
+              isOpen={isCardModalOpen} 
+              onClose={closeCardModal} 
+            />
+          </div>
+        )}
       </main>
-    </>
+    </div>
   );
 }
