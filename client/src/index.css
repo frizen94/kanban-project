@@ -416,4 +416,36 @@
   .backdrop-blur-md { backdrop-filter: blur(8px); }
   .backdrop-blur-lg { backdrop-filter: blur(12px); }
   .backdrop-blur-xl { backdrop-filter: blur(16px); }
+  
+  /* Fade in animations */
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  
+  @keyframes slideInRight {
+    0% {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .animate-fadeInUp { animation: fadeInUp 0.4s ease-out forwards; }
+  .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+  .animate-slideInRight { animation: slideInRight 0.4s ease-out forwards; }
 }

@@ -109,9 +109,9 @@ export function List({ list, index, openCardModal }: ListProps) {
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className="list min-w-[272px] bg-[#EBECF0] rounded-md shadow-sm flex flex-col max-h-full"
+          className="board-list min-w-[280px] max-w-[320px] flex flex-col max-h-full"
         >
-          <div className="p-2 flex items-center justify-between" {...provided.dragHandleProps}>
+          <div className="p-4 flex items-center justify-between cursor-grab active:cursor-grabbing" {...provided.dragHandleProps}>
             {isEditingTitle ? (
               <input
                 ref={titleInputRef}
@@ -120,12 +120,14 @@ export function List({ list, index, openCardModal }: ListProps) {
                 onChange={handleTitleChange}
                 onBlur={handleTitleBlur}
                 onKeyDown={handleKeyDown}
-                className="font-medium text-sm px-2 py-1 flex-grow bg-white rounded border border-[#0079BF] outline-none"
+                className="input-enhanced font-bold text-base px-3 py-2 flex-grow outline-none"
+                placeholder="Nome da lista"
               />
             ) : (
               <h3
-                className="font-medium text-sm px-2 py-1 flex-grow cursor-pointer"
+                className="font-bold text-base px-3 py-2 flex-grow cursor-pointer hover:text-primary transition-smooth truncate"
                 onClick={handleTitleClick}
+                title={list.title}
               >
                 {list.title}
               </h3>
@@ -133,32 +135,53 @@ export function List({ list, index, openCardModal }: ListProps) {
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="p-1 h-auto">
-                  <MoreHorizontal className="h-4 w-4 text-[#5E6C84]" />
+                <Button variant="ghost" size="sm" className="p-2 h-auto transition-smooth hover:bg-white/10 hover:scale-110">
+                  <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="glass-strong border-white/10 shadow-strong">
                 <DropdownMenuItem 
                   onClick={handleEditList}
-                  className="cursor-pointer"
+                  className="cursor-pointer focus:bg-white/5 transition-fast"
                 >
-                  <Pencil className="mr-2 h-4 w-4" />
-                  <span>Editar</span>
+                  <Pencil className="mr-3 h-4 w-4 text-primary" />
+                  <div>
+                    <div className="text-sm">Editar Lista</div>
+                    <div className="text-xs text-muted-foreground">Alterar título</div>
+                  </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={handleCopyList}
-                  className="cursor-pointer"
+                  className="cursor-pointer focus:bg-white/5 transition-fast"
                   disabled={isCopying}
                 >
-                  <Copy className="mr-2 h-4 w-4" />
-                  <span>{isCopying ? "Copiando..." : "Copiar"}</span>
+                  {isCopying ? (
+                    <>
+                      <Loader2 className="mr-3 h-4 w-4 animate-spin text-primary" />
+                      <div>
+                        <div className="text-sm">Copiando...</div>
+                        <div className="text-xs text-muted-foreground">Aguarde</div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="mr-3 h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <div className="text-sm">Copiar Lista</div>
+                        <div className="text-xs text-muted-foreground">Duplicar com cartões</div>
+                      </div>
+                    </>
+                  )}
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={confirmDeleteList}
-                  className="cursor-pointer text-red-600"
+                  className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 transition-fast"
                 >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  <span>Excluir</span>
+                  <Trash2 className="mr-3 h-4 w-4" />
+                  <div>
+                    <div className="text-sm">Excluir Lista</div>
+                    <div className="text-xs opacity-75">Ação irreversível</div>
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -193,7 +216,7 @@ export function List({ list, index, openCardModal }: ListProps) {
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className={`list-cards flex-grow px-1 pb-0.5 overflow-y-auto ${snapshot.isDraggingOver ? 'bg-[#E3E5E8]' : ''}`}
+                className={`list-cards flex-grow px-4 pb-4 overflow-y-auto transition-smooth ${snapshot.isDraggingOver ? 'bg-white/5 backdrop-blur-sm border-dashed border-2 border-primary/30 rounded-lg' : ''}`}
               >
                 {visibleCards[list.id]?.map((card, cardIndex) => (
                   <Card 
