@@ -37,7 +37,8 @@ export default function BoardPage() {
   }, [boardId]);
 
   const handleBoardUpdate = (updatedBoard: Board) => {
-    currentBoard = updatedBoard
+    // The board update will be handled by refetching data
+    fetchBoardData(boardId);
   };
 
   return (
