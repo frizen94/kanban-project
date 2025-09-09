@@ -1,16 +1,16 @@
 /**
  * Seeder para popular o banco de dados com dados iniciais
- * 
+ *
  * Este arquivo é responsável por:
  * - Criar uma conta de administrador padrão
  * - Popular dados básicos quando necessário
  * - Executar automaticamente na inicialização do servidor
  */
 
-import { storage } from './db-storage';
-import { hashPassword } from './auth';
-import type { InsertUser } from '@shared/schema';
-import { addDescriptionColumn } from './migrate-description';
+import { storage } from "./db-storage";
+import { hashPassword } from "./auth";
+import type { InsertUser } from "@shared/schema";
+import { addDescriptionColumn } from "./migrate-description";
 
 // Credenciais do administrador padrão
 const DEFAULT_ADMIN = {
@@ -18,7 +18,7 @@ const DEFAULT_ADMIN = {
   password: "admin123",
   email: "admin@kanban.local",
   name: "Administrador do Sistema",
-  role: "admin"
+  role: "admin",
 };
 
 /**
@@ -47,7 +47,7 @@ export async function runSeeder() {
         password: hashedPassword,
         email: DEFAULT_ADMIN.email,
         name: DEFAULT_ADMIN.name,
-        role: "admin"
+        role: "ADMIN",
       });
 
       console.log(`✅ Administrador criado com sucesso! ID: ${adminUser.id}`);
@@ -60,7 +60,6 @@ export async function runSeeder() {
       console.log("ℹ️  Usuários já existem no banco. Seeder não executado.");
       return false;
     }
-
   } catch (error) {
     console.error("❌ Erro ao executar seeder:", error);
     throw error;
@@ -84,33 +83,33 @@ export async function createSampleData() {
     // Criar quadro de exemplo
     const sampleBoard = await storage.createBoard({
       title: "Quadro de Exemplo",
-      userId: admin.id
+      userId: admin.id,
     });
 
     // Adicionar admin como membro do quadro
     await storage.addMemberToBoard({
       boardId: sampleBoard.id,
       userId: admin.id,
-      role: "owner"
+      role: "owner",
     });
 
     // Criar listas de exemplo
     const todoList = await storage.createList({
       title: "A Fazer",
       boardId: sampleBoard.id,
-      order: 0
+      order: 0,
     });
 
     const doingList = await storage.createList({
       title: "Fazendo",
       boardId: sampleBoard.id,
-      order: 1
+      order: 1,
     });
 
     const doneList = await storage.createList({
       title: "Concluído",
       boardId: sampleBoard.id,
-      order: 2
+      order: 2,
     });
 
     // Criar cartões de exemplo
@@ -118,39 +117,38 @@ export async function createSampleData() {
       title: "Configurar ambiente de desenvolvimento",
       description: "Instalar dependências e configurar o projeto",
       listId: doneList.id,
-      order: 0
+      order: 0,
     });
 
     await storage.createCard({
       title: "Implementar autenticação",
       description: "Criar sistema de login e registro de usuários",
       listId: doneList.id,
-      order: 1
+      order: 1,
     });
 
     await storage.createCard({
       title: "Desenvolver interface do quadro",
       description: "Criar componentes do Kanban board",
       listId: doingList.id,
-      order: 0
+      order: 0,
     });
 
     await storage.createCard({
       title: "Adicionar funcionalidade de drag & drop",
       description: "Implementar arrastar e soltar para cartões e listas",
       listId: todoList.id,
-      order: 0
+      order: 0,
     });
 
     await storage.createCard({
       title: "Implementar sistema de comentários",
       description: "Permitir adicionar comentários aos cartões",
       listId: todoList.id,
-      order: 1
+      order: 1,
     });
 
     console.log("✅ Dados de exemplo criados com sucesso!");
-
   } catch (error) {
     console.error("❌ Erro ao criar dados de exemplo:", error);
     throw error;
