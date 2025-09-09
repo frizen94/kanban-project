@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog";
-import { Users, Search, X } from "lucide-react";
+import { Users, Search, X, Eye, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BoardMemberManager } from "@/components/board-member-manager";
@@ -22,9 +22,11 @@ import {
 
 interface BoardHeaderProps {
   board: Board;
+  currentView: 'overview' | 'board';
+  onViewChange: (view: 'overview' | 'board') => void;
 }
 
-export function BoardHeader({ board }: BoardHeaderProps) {
+export function BoardHeader({ board, currentView, onViewChange }: BoardHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(board.title);
   const [searchQuery, setSearchQuery] = useState("");
@@ -81,9 +83,10 @@ export function BoardHeader({ board }: BoardHeaderProps) {
   };
 
   return (
-    <div className="bg-[#0079BF]/90 text-white py-2">
+    <div className="bg-[#0079BF]/90 text-white">
       <div className="container mx-auto px-4">
-        <div className="flex flex-wrap items-center justify-between">
+        {/* Header principal */}
+        <div className="flex flex-wrap items-center justify-between py-2">
           <div className="flex items-center space-x-4 mb-2 md:mb-0">
             {isEditing ? (
               <input
@@ -161,6 +164,34 @@ export function BoardHeader({ board }: BoardHeaderProps) {
                 <span>Pesquisar</span>
               </Button>
             )}
+          </div>
+        </div>
+        
+        {/* Abas de navegação */}
+        <div className="border-t border-white/20">
+          <div className="flex space-x-1">
+            <button
+              onClick={() => onViewChange('overview')}
+              className={`px-4 py-2 text-sm font-medium transition-colors ${
+                currentView === 'overview'
+                  ? 'text-white border-b-2 border-white bg-white/10'
+                  : 'text-white/80 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Eye className="h-4 w-4 mr-2 inline" />
+              Visão geral
+            </button>
+            <button
+              onClick={() => onViewChange('board')}
+              className={`px-4 py-2 text-sm font-medium transition-colors ${
+                currentView === 'board'
+                  ? 'text-white border-b-2 border-white bg-white/10'
+                  : 'text-white/80 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <LayoutGrid className="h-4 w-4 mr-2 inline" />
+              Quadro
+            </button>
           </div>
         </div>
       </div>

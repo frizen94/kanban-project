@@ -31,7 +31,7 @@ const pool = new pg.Pool({
 
 export class DatabaseStorage implements IStorage {
   sessionStore: any; // Tipo para a session store
-  
+
   constructor() {
     this.sessionStore = new PostgresSessionStore({
       pool,
@@ -49,7 +49,7 @@ export class DatabaseStorage implements IStorage {
     const users = await db.select().from(schema.users).where(eq(schema.users.username, username));
     return users[0];
   }
-  
+
   async getUserCount(): Promise<number> {
     const users = await db.select().from(schema.users);
     return users.length;
@@ -65,12 +65,12 @@ export class DatabaseStorage implements IStorage {
       profilePicture: userData.profilePicture || null,
       createdAt: new Date()
     };
-    
+
     // Usamos o spread operator para converter para o tipo esperado pelo drizzle
     const inserted = await db.insert(schema.users).values({...dataToInsert}).returning();
     return inserted[0];
   }
-  
+
   async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
     const updated = await db
       .update(schema.users)
@@ -79,7 +79,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updated[0];
   }
-  
+
   async deleteUser(id: number): Promise<boolean> {
     try {
       // Verifica se o usuário existe
@@ -87,19 +87,19 @@ export class DatabaseStorage implements IStorage {
       if (!user) {
         return false;
       }
-      
+
       // Remover usuário de todos os quadros onde é membro
       await db.delete(schema.boardMembers).where(eq(schema.boardMembers.userId, id));
-      
+
       // Remover usuário de todos os cartões onde é membro
       await db.delete(schema.cardMembers).where(eq(schema.cardMembers.userId, id));
-      
+
       // Remover comentários feitos pelo usuário
       await db.delete(schema.comments).where(eq(schema.comments.userId, id));
-      
+
       // Remover o usuário
       const result = await db.delete(schema.users).where(eq(schema.users.id, id));
-      
+
       return result.count > 0;
     } catch (error) {
       console.error("Erro ao excluir usuário:", error);
@@ -118,11 +118,11 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(schema.boards)
       .where(eq(schema.boards.id, id));
-    
+
     if (boards.length === 0) {
       return undefined;
     }
-    
+
     // Se o quadro tem um usuário como criador, busca o nome de usuário
     const board = boards[0] as BoardWithCreator;
     if (board.userId) {
@@ -130,13 +130,13 @@ export class DatabaseStorage implements IStorage {
         .select()
         .from(schema.users)
         .where(eq(schema.users.id, board.userId));
-      
+
       if (users.length > 0) {
         // Adiciona o nome de usuário ao objeto do quadro
         board.username = users[0].username;
       }
     }
-    
+
     return board;
   }
 
@@ -162,59 +162,59 @@ export class DatabaseStorage implements IStorage {
     try {
       // 1. Buscar todas as listas do quadro
       const boardLists = await db.select().from(schema.lists).where(eq(schema.lists.boardId, id));
-      
+
       // 2. Para cada lista, excluir os cartões associados
       for (const list of boardLists) {
         // 2.1 Buscar todos os cartões da lista
         const listCards = await db.select().from(schema.cards).where(eq(schema.cards.listId, list.id));
-        
+
         // 2.2 Para cada cartão, excluir registros dependentes em ordem
         for (const card of listCards) {
           // Excluir rótulos dos cartões
           await db.delete(schema.cardLabels).where(eq(schema.cardLabels.cardId, card.id));
-          
+
           // Excluir membros dos cartões
           await db.delete(schema.cardMembers).where(eq(schema.cardMembers.cardId, card.id));
-          
+
           // Excluir comentários
           await db.delete(schema.comments).where(eq(schema.comments.cardId, card.id));
-          
+
           // Excluir itens das checklists
           const cardChecklists = await db.select().from(schema.checklists).where(eq(schema.checklists.cardId, card.id));
           for (const checklist of cardChecklists) {
             await db.delete(schema.checklistItems).where(eq(schema.checklistItems.checklistId, checklist.id));
           }
-          
+
           // Excluir checklists
           await db.delete(schema.checklists).where(eq(schema.checklists.cardId, card.id));
         }
-        
+
         // 2.3 Excluir os cartões da lista
         await db.delete(schema.cards).where(eq(schema.cards.listId, list.id));
       }
-      
+
       // 3. Excluir todas as listas do quadro
       await db.delete(schema.lists).where(eq(schema.lists.boardId, id));
-      
+
       // 4. Excluir rótulos do quadro
       await db.delete(schema.labels).where(eq(schema.labels.boardId, id));
-      
+
       // 5. Excluir membros do quadro
       await db.delete(schema.boardMembers).where(eq(schema.boardMembers.boardId, id));
-      
+
       // 6. Finalmente, excluir o quadro
       const deleted = await db
         .delete(schema.boards)
         .where(eq(schema.boards.id, id))
         .returning();
-      
+
       return deleted.length > 0;
     } catch (error) {
       console.error('Erro ao excluir quadro:', error);
       return false;
     }
   }
-  
+
   async getBoardsForUser(userId: number): Promise<Board[]> {
     return db
       .select()
@@ -222,11 +222,11 @@ export class DatabaseStorage implements IStorage {
       .where(eq(schema.boards.userId, userId))
       .orderBy(asc(schema.boards.createdAt));
   }
-  
+
   async getBoardsUserCanAccess(userId: number): Promise<Board[]> {
     // Obtém quadros próprios
     const ownedBoards = await this.getBoardsForUser(userId);
-    
+
     // Obtém quadros em que o usuário é membro
     const memberBoards = await db
       .select()
@@ -238,22 +238,22 @@ export class DatabaseStorage implements IStorage {
           eq(schema.boardMembers.userId, userId)
         )
       );
-    
+
     // Combina os dois conjuntos e remove duplicatas
     const allBoardsMap = new Map<number, Board>();
-    
+
     // Adiciona quadros de propriedade do usuário
     ownedBoards.forEach(board => {
       allBoardsMap.set(board.id, board);
     });
-    
+
     // Adiciona quadros em que o usuário é membro
     memberBoards.forEach(({ boards }) => {
       if (!allBoardsMap.has(boards.id)) {
         allBoardsMap.set(boards.id, boards);
       }
     });
-    
+
     return Array.from(allBoardsMap.values());
   }
 
@@ -293,37 +293,37 @@ export class DatabaseStorage implements IStorage {
     try {
       // 1. Buscar todos os cartões desta lista
       const listCards = await db.select().from(schema.cards).where(eq(schema.cards.listId, id));
-      
+
       // 2. Para cada cartão, excluir registros dependentes em ordem
       for (const card of listCards) {
         // Excluir rótulos dos cartões
         await db.delete(schema.cardLabels).where(eq(schema.cardLabels.cardId, card.id));
-        
+
         // Excluir membros dos cartões
         await db.delete(schema.cardMembers).where(eq(schema.cardMembers.cardId, card.id));
-        
+
         // Excluir comentários
         await db.delete(schema.comments).where(eq(schema.comments.cardId, card.id));
-        
+
         // Excluir itens das checklists
         const cardChecklists = await db.select().from(schema.checklists).where(eq(schema.checklists.cardId, card.id));
         for (const checklist of cardChecklists) {
           await db.delete(schema.checklistItems).where(eq(schema.checklistItems.checklistId, checklist.id));
         }
-        
+
         // Excluir checklists
         await db.delete(schema.checklists).where(eq(schema.checklists.cardId, card.id));
       }
-      
+
       // 3. Excluir os cartões da lista
       await db.delete(schema.cards).where(eq(schema.cards.listId, id));
-      
+
       // 4. Finalmente, excluir a lista
       const deleted = await db
         .delete(schema.lists)
         .where(eq(schema.lists.id, id))
         .returning();
-      
+
       return deleted.length > 0;
     } catch (error) {
       console.error('Erro ao excluir lista:', error);
@@ -367,28 +367,28 @@ export class DatabaseStorage implements IStorage {
     try {
       // 1. Excluir rótulos dos cartões
       await db.delete(schema.cardLabels).where(eq(schema.cardLabels.cardId, id));
-      
+
       // 2. Excluir membros dos cartões
       await db.delete(schema.cardMembers).where(eq(schema.cardMembers.cardId, id));
-      
+
       // 3. Excluir comentários
       await db.delete(schema.comments).where(eq(schema.comments.cardId, id));
-      
+
       // 4. Excluir itens das checklists
       const cardChecklists = await db.select().from(schema.checklists).where(eq(schema.checklists.cardId, id));
       for (const checklist of cardChecklists) {
         await db.delete(schema.checklistItems).where(eq(schema.checklistItems.checklistId, checklist.id));
       }
-      
+
       // 5. Excluir checklists
       await db.delete(schema.checklists).where(eq(schema.checklists.cardId, id));
-      
+
       // 6. Finalmente, excluir o cartão
       const deleted = await db
         .delete(schema.cards)
         .where(eq(schema.cards.id, id))
         .returning();
-      
+
       return deleted.length > 0;
     } catch (error) {
       console.error('Erro ao excluir cartão:', error);
@@ -461,7 +461,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return deleted.length > 0;
   }
-  
+
   /**
    * Obtém cartões com checklists para o dashboard
    * 
@@ -476,39 +476,39 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`[DB-STORAGE] Retornando array vazio para getCardsWithChecklistsForUser (userId=${userId})`);
       return [];
-      
+
       /*
       // Código original comentado para evitar erros
       // Passo 1: Obter todos os quadros acessíveis pelo usuário
       const accessibleBoards = await this.getBoardsUserCanAccess(userId);
       const boardIds = accessibleBoards.map(board => board.id);
-      
+
       console.log(`Quadros acessíveis: ${boardIds.join(', ') || 'nenhum'}`);
-      
+
       if (boardIds.length === 0) {
         return [];
       }
       */
-      
+
       // Passo 2: Obter todas as listas desses quadros
       const lists = await db
         .select()
         .from(schema.lists)
         .where(inArray(schema.lists.boardId, boardIds));
-      
+
       const listIds = lists.map(list => list.id);
-      
+
       console.log(`Listas encontradas: ${listIds.join(', ') || 'nenhuma'}`);
-      
+
       if (listIds.length === 0) {
         return [];
       }
-      
+
       // Passo 3: Obter cartões atribuídos ao usuário OU com data de vencimento próxima
       const today = new Date();
       const nextWeek = new Date();
       nextWeek.setDate(today.getDate() + 7);
-      
+
       try {
         // Consulta complexa para obter cartões com seus checklists
         // Primeiro obtemos os cartões relevantes
@@ -534,46 +534,46 @@ export class DatabaseStorage implements IStorage {
             )
           )
           .orderBy(asc(schema.cards.dueDate));
-        
+
         console.log(`Cartões encontrados: ${cards.length}`);
-        
+
         if (cards.length === 0) {
           return [];
         }
-        
+
         // Resultado final com informações completas
         const result = [];
-        
+
         // Para cada cartão, buscar informações adicionais
         for (const card of cards) {
           try {
             console.log(`Processando cartão id=${card.id}`);
-            
+
             // Obter a lista e o quadro ao qual o cartão pertence
             const list = lists.find(l => l.id === card.listId);
             if (!list) {
               console.log(`Lista id=${card.listId} não encontrada para cartão id=${card.id}`);
               continue;
             }
-            
+
             const board = accessibleBoards.find(b => b.id === list.boardId);
             if (!board) {
               console.log(`Quadro id=${list.boardId} não encontrado para lista id=${list.id}`);
               continue;
             }
-            
+
             try {
               // Obter checklists do cartão
               const checklists = await this.getChecklists(card.id);
-              
+
               console.log(`Checklists para cartão id=${card.id}: ${checklists.length}`);
-              
+
               // Só incluir cartões que têm checklists
               if (checklists.length === 0) continue;
-              
+
               // Para cada checklist, obter seus itens
               const checklistsWithItems = [];
-              
+
               for (const checklist of checklists) {
                 try {
                   // Obter todos os itens da checklist
@@ -582,16 +582,16 @@ export class DatabaseStorage implements IStorage {
                     .from(schema.checklistItems)
                     .where(eq(schema.checklistItems.checklistId, checklist.id))
                     .orderBy(asc(schema.checklistItems.order));
-                  
+
                   console.log(`Itens para checklist id=${checklist.id}: ${items.length}`);
-                  
+
                   // Para cada item, verificar se está atribuído ao usuário ou tem data de vencimento
                   items = items.map(item => {
                     // Adicionar informação se o item está atrasado
                     if (item.dueDate) {
                       const dueDate = new Date(item.dueDate);
                       const now = new Date();
-                      
+
                       if (dueDate < now) {
                         return {
                           ...item,
@@ -599,13 +599,13 @@ export class DatabaseStorage implements IStorage {
                         };
                       }
                     }
-                    
+
                     return {
                       ...item,
                       isOverdue: false
                     };
                   });
-                  
+
                   checklistsWithItems.push({
                     ...checklist,
                     items
@@ -619,17 +619,17 @@ export class DatabaseStorage implements IStorage {
                   });
                 }
               }
-              
+
               try {
                 // Obter membros do cartão
                 const cardMembers = await this.getCardMembers(card.id);
-                
+
                 // Obter etiquetas do cartão
                 const cardLabels = await this.getCardLabels(card.id);
-                
+
                 // Se houver etiquetas, obter detalhes completos
                 let labels = [];
-                
+
                 if (cardLabels && cardLabels.length > 0) {
                   try {
                     const labelIds = cardLabels.map(cl => cl.labelId);
@@ -641,20 +641,20 @@ export class DatabaseStorage implements IStorage {
                     console.error(`Erro ao buscar detalhes das etiquetas do cartão id=${card.id}:`, labelsError);
                   }
                 }
-                
+
                 // Determinar o status do cartão em relação ao prazo
                 let status = "no_date";
                 if (card.dueDate) {
                   const dueDate = new Date(card.dueDate);
                   const now = new Date();
-                  
+
                   if (dueDate < now) {
                     status = "overdue"; // Atrasado
                   } else {
                     // Calcular a diferença em dias
                     const diffTime = dueDate.getTime() - now.getTime();
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    
+
                     if (diffDays <= 3) {
                       status = "due_soon"; // Vence em breve (3 dias ou menos)
                     } else {
@@ -662,7 +662,7 @@ export class DatabaseStorage implements IStorage {
                     }
                   }
                 }
-                
+
                 // Adicionar ao resultado
                 result.push({
                   card,
@@ -683,7 +683,7 @@ export class DatabaseStorage implements IStorage {
             console.error(`Erro ao processar cartão id=${card.id}:`, cardError);
           }
         }
-        
+
         console.log(`Total de cartões com checklists retornados: ${result.length}`);
         return result;
       } catch (cardsQueryError) {
@@ -695,7 +695,7 @@ export class DatabaseStorage implements IStorage {
       return [];
     }
   }
-  
+
   /**
    * Obtém cartões atrasados para o dashboard
    * 
@@ -709,40 +709,40 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`[DB-STORAGE] Retornando array vazio para getOverdueCardsForUser (userId=${userId})`);
       return [];
-      
+
       /*
       // Código original comentado para evitar erros
       console.log(`Buscando cartões atrasados para usuário id=${userId}`);
-      
+
       // Passo 1: Obter todos os quadros acessíveis pelo usuário
       const accessibleBoards = await this.getBoardsUserCanAccess(userId);
       const boardIds = accessibleBoards.map(board => board.id);
-      
+
       console.log(`Quadros acessíveis: ${boardIds.join(', ') || 'nenhum'}`);
-      
+
       if (boardIds.length === 0) {
         return [];
       }
       */
-      
+
       // Passo 2: Obter todas as listas desses quadros
       const lists = await db
         .select()
         .from(schema.lists)
         .where(inArray(schema.lists.boardId, boardIds));
-      
+
       const listIds = lists.map(list => list.id);
-      
+
       console.log(`Listas encontradas: ${listIds.join(', ') || 'nenhuma'}`);
-      
+
       if (listIds.length === 0) {
         return [];
       }
-      
+
       try {
         // Passo 3: Obter cartões atrasados
         const today = new Date();
-        
+
         // Consulta para obter cartões atrasados
         const cards = await db
           .select()
@@ -755,44 +755,44 @@ export class DatabaseStorage implements IStorage {
             )
           )
           .orderBy(asc(schema.cards.dueDate));
-        
+
         console.log(`Cartões atrasados encontrados: ${cards.length}`);
-        
+
         if (cards.length === 0) {
           return [];
         }
-        
+
         // Resultado final com informações completas
         const result = [];
-        
+
         // Para cada cartão, buscar informações adicionais
         for (const card of cards) {
           try {
             console.log(`Processando cartão atrasado id=${card.id}`);
-            
+
             // Obter a lista e o quadro ao qual o cartão pertence
             const list = lists.find(l => l.id === card.listId);
             if (!list) {
               console.log(`Lista id=${card.listId} não encontrada para cartão id=${card.id}`);
               continue;
             }
-            
+
             const board = accessibleBoards.find(b => b.id === list.boardId);
             if (!board) {
               console.log(`Quadro id=${list.boardId} não encontrado para lista id=${list.id}`);
               continue;
             }
-            
+
             try {
               // Obter membros do cartão
               const cardMembers = await this.getCardMembers(card.id);
-              
+
               // Verificar se o cartão está atribuído ao usuário
               const isAssignedToUser = cardMembers.some(member => member.id === userId);
-              
+
               // Obter etiquetas do cartão
               const cardLabels = await this.getCardLabels(card.id);
-              
+
               // Se houver etiquetas, obter detalhes completos
               let labels = [];
               if (cardLabels && cardLabels.length > 0) {
@@ -806,7 +806,7 @@ export class DatabaseStorage implements IStorage {
                   console.error(`Erro ao buscar detalhes das etiquetas do cartão id=${card.id}:`, labelsError);
                 }
               }
-              
+
               // Adicionar ao resultado
               result.push({
                 card,
@@ -823,7 +823,7 @@ export class DatabaseStorage implements IStorage {
             console.error(`Erro ao processar cartão id=${card.id}:`, cardError);
           }
         }
-        
+
         console.log(`Total de cartões atrasados retornados: ${result.length}`);
         return result;
       } catch (cardsQueryError) {
@@ -835,7 +835,7 @@ export class DatabaseStorage implements IStorage {
       return [];
     }
   }
-  
+
   /**
    * Obtém cartões que vencem em breve para o dashboard
    * 
@@ -848,37 +848,37 @@ export class DatabaseStorage implements IStorage {
   async getUpcomingCardsForUser(userId: number): Promise<any[]> {
     try {
       console.log(`Buscando cartões próximos para usuário id=${userId}`);
-      
+
       // Passo 1: Obter todos os quadros acessíveis pelo usuário
       const accessibleBoards = await this.getBoardsUserCanAccess(userId);
       const boardIds = accessibleBoards.map(board => board.id);
-      
+
       console.log(`Quadros acessíveis: ${boardIds.join(', ') || 'nenhum'}`);
-      
+
       if (boardIds.length === 0) {
         return [];
       }
-      
+
       // Passo 2: Obter todas as listas desses quadros
       const lists = await db
         .select()
         .from(schema.lists)
         .where(inArray(schema.lists.boardId, boardIds));
-      
+
       const listIds = lists.map(list => list.id);
-      
+
       console.log(`Listas encontradas: ${listIds.join(', ') || 'nenhuma'}`);
-      
+
       if (listIds.length === 0) {
         return [];
       }
-      
+
       try {
         // Passo 3: Obter cartões que vencem em breve
         const today = new Date();
         const threeDaysLater = new Date();
         threeDaysLater.setDate(today.getDate() + 3);
-        
+
         // Consulta para obter cartões que vencem em breve
         const cards = await db
           .select()
@@ -892,44 +892,44 @@ export class DatabaseStorage implements IStorage {
             )
           )
           .orderBy(asc(schema.cards.dueDate));
-        
+
         console.log(`Cartões próximos encontrados: ${cards.length}`);
-        
+
         if (cards.length === 0) {
           return [];
         }
-        
+
         // Resultado final com informações completas
         const result = [];
-        
+
         // Para cada cartão, buscar informações adicionais
         for (const card of cards) {
           try {
             console.log(`Processando cartão próximo id=${card.id}`);
-            
+
             // Obter a lista e o quadro ao qual o cartão pertence
             const list = lists.find(l => l.id === card.listId);
             if (!list) {
               console.log(`Lista id=${card.listId} não encontrada para cartão id=${card.id}`);
               continue;
             }
-            
+
             const board = accessibleBoards.find(b => b.id === list.boardId);
             if (!board) {
               console.log(`Quadro id=${list.boardId} não encontrado para lista id=${list.id}`);
               continue;
             }
-            
+
             try {
               // Obter membros do cartão
               const cardMembers = await this.getCardMembers(card.id);
-              
+
               // Verificar se o cartão está atribuído ao usuário
               const isAssignedToUser = cardMembers.some(member => member.id === userId);
-              
+
               // Obter etiquetas do cartão
               const cardLabels = await this.getCardLabels(card.id);
-              
+
               // Se houver etiquetas, obter detalhes completos
               let labels = [];
               if (cardLabels && cardLabels.length > 0) {
@@ -943,7 +943,7 @@ export class DatabaseStorage implements IStorage {
                   console.error(`Erro ao buscar detalhes das etiquetas do cartão id=${card.id}:`, labelsError);
                 }
               }
-              
+
               // Adicionar ao resultado
               result.push({
                 card,
@@ -960,7 +960,7 @@ export class DatabaseStorage implements IStorage {
             console.error(`Erro ao processar cartão id=${card.id}:`, cardError);
           }
         }
-        
+
         console.log(`Total de cartões próximos retornados: ${result.length}`);
         return result;
       } catch (cardsQueryError) {
@@ -980,18 +980,18 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(schema.boardMembers)
       .where(eq(schema.boardMembers.boardId, boardId));
-      
+
     if (boardMembers.length === 0) {
       return [];
     }
-    
+
     // Depois buscamos os dados completos dos usuários
     const userIds = boardMembers.map(bm => bm.userId);
     const users = await db
       .select()
       .from(schema.users)
       .where(inArray(schema.users.id, userIds));
-    
+
     // Agora adicionamos a função (role) de cada usuário
     return users.map(user => {
       // Encontrar o board member correspondente ao usuário
@@ -1002,7 +1002,7 @@ export class DatabaseStorage implements IStorage {
       return userWithRole;
     });
   }
-  
+
   async getBoardMember(boardId: number, userId: number): Promise<BoardMember | undefined> {
     const boardMembers = await db
       .select()
@@ -1015,7 +1015,7 @@ export class DatabaseStorage implements IStorage {
       );
     return boardMembers[0];
   }
-  
+
   async addMemberToBoard(boardMemberData: InsertBoardMember): Promise<BoardMember> {
     const dataToInsert = {
       ...boardMemberData,
@@ -1024,7 +1024,7 @@ export class DatabaseStorage implements IStorage {
     const inserted = await db.insert(schema.boardMembers).values(dataToInsert).returning();
     return inserted[0];
   }
-  
+
   async updateBoardMember(boardId: number, userId: number, role: string): Promise<BoardMember | undefined> {
     const updated = await db
       .update(schema.boardMembers)
@@ -1038,7 +1038,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updated[0];
   }
-  
+
   async removeMemberFromBoard(boardId: number, userId: number): Promise<boolean> {
     const deleted = await db
       .delete(schema.boardMembers)
@@ -1051,7 +1051,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return deleted.length > 0;
   }
-  
+
   // Card Member methods
   async getCardMembers(cardId: number): Promise<User[]> {
     const cardMembers = await db
@@ -1121,13 +1121,13 @@ export class DatabaseStorage implements IStorage {
     try {
       // 1. Excluir itens da checklist
       await db.delete(schema.checklistItems).where(eq(schema.checklistItems.checklistId, id));
-      
+
       // 2. Excluir a checklist
       const deleted = await db
         .delete(schema.checklists)
         .where(eq(schema.checklists.id, id))
         .returning();
-      
+
       return deleted.length > 0;
     } catch (error) {
       console.error('Erro ao excluir checklist:', error);

@@ -6,7 +6,7 @@
  * correspondentes para manter a consistência dos dados entre frontend e backend.
  */
 
-import { pgTable, text, serial, integer, boolean, timestamp, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, primaryKey, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -77,7 +77,8 @@ export interface UserWithBoardRole extends User {
  */
 export const boards = pgTable("boards", {
   id: serial("id").primaryKey(),
-  title: text("title").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
   userId: integer("user_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -88,6 +89,7 @@ export const boards = pgTable("boards", {
  */
 export const insertBoardSchema = createInsertSchema(boards).pick({
   title: true,
+  description: true,
   userId: true,
 });
 
@@ -241,7 +243,7 @@ export type CardLabel = typeof cardLabels.$inferSelect;
  * Armazena comentários feitos pelos usuários nos cartões:
  * - Conteúdo do comentário
  * - Referência ao cartão (cardId)
- * - Referência ao usuário autor (userId)
+ * - Referência ao usuário (userId)
  * - Nome do usuário para exibição rápida (userName)
  * - Data de criação
  */

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "wouter";
-import { BoardHeader } from "@/components/board-header";
+import { useQuery } from "@tanstack/react-query";
 import { Board as BoardComponent } from "@/components/board";
+import { BoardHeader } from "@/components/board-header";
+import { BoardOverview } from "@/components/board-overview";
 import { useBoardContext } from "@/lib/board-context";
+import type { Board, List } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -11,6 +14,7 @@ export default function BoardPage() {
   const boardId = parseInt(id);
   const { currentBoard, fetchBoardData, isLoading } = useBoardContext();
   const { toast } = useToast();
+  const [currentView, setCurrentView] = useState<'overview' | 'board'>('overview');
 
   useEffect(() => {
     if (isNaN(boardId)) {
@@ -32,6 +36,10 @@ export default function BoardPage() {
     });
   }, [boardId]);
 
+  const handleBoardUpdate = (updatedBoard: Board) => {
+    currentBoard = updatedBoard
+  };
+
   return (
     <div className="min-h-screen bg-[#F9FAFC] flex flex-col">
       {isLoading ? (
@@ -47,7 +55,19 @@ export default function BoardPage() {
         </div>
       ) : (
         <>
-          <BoardComponent boardId={boardId} />
+          <BoardHeader
+            board={currentBoard}
+            currentView={currentView}
+            onViewChange={setCurrentView}
+          />
+          {currentView === 'overview' ? (
+            <BoardOverview
+              board={currentBoard}
+              onBoardUpdate={handleBoardUpdate}
+            />
+          ) : (
+            <BoardComponent boardId={parseInt(id || "0")} />
+          )}
         </>
       )}
     </div>

@@ -1684,6 +1684,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Obtém contagem de usuários (somente para admins)
       let totalUsers = 0;
+      if (req.user.role.toLowerCase() === "admin") {
+        const users = await appStorage.getUsers();
+        totalUsers = users.length;
+      }
 
       res.json({
         totalBoards: userBoards.length,
