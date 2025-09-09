@@ -143,7 +143,7 @@ export function Header() {
                       </>
                     )}
                   </div>
-                  
+
                   <DropdownMenuItem
                     onClick={() => navigate("/my-dashboard")}
                     className="focus:bg-white/5"
@@ -164,7 +164,7 @@ export function Header() {
                       <div className="text-xs text-muted-foreground">Gerenciar conta</div>
                     </div>
                   </DropdownMenuItem>
-                  
+
                   {user.role.toUpperCase() === "ADMIN" && (
                     <>
                       <DropdownMenuSeparator className="bg-white/10" />
@@ -180,7 +180,7 @@ export function Header() {
                       </DropdownMenuItem>
                     </>
                   )}
-                  
+
                   <DropdownMenuSeparator className="bg-white/10" />
                   <DropdownMenuItem
                     className="text-destructive focus:text-destructive focus:bg-destructive/10"

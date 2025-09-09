@@ -207,7 +207,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Verifica se o usuário é administrador
-      if (req.user.role && req.user.role.toLowerCase() === "admin") {
+      if (req.user.role && req.user.role.toUpperCase() === "ADMIN") {
         // Administradores podem ver todos os quadros
         const allBoards = await appStorage.getBoards();
         return res.json(allBoards);
@@ -1684,7 +1684,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Obtém contagem de usuários (somente para admins)
       let totalUsers = 0;
-      if (req.user.role.toLowerCase() === "admin") {
+      if (req.user.role.toUpperCase() === "ADMIN") {
         const users = await appStorage.getUsers();
         totalUsers = users.length;
       }

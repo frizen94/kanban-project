@@ -580,7 +580,7 @@ const Dashboard = () => {
             />
           </div>
 
-          {user && user.role.toLowerCase() === "admin" && (
+          {user && user.role.toUpperCase() === "ADMIN" && (
             <>
               <div className="mt-8">
                 <h2 className="text-xl font-semibold mb-4">Métricas do Projeto</h2>
@@ -666,7 +666,7 @@ const Dashboard = () => {
         </TabsContent>
 
         {/* Tab: Usuários (Admin) */}
-        {user?.role === "admin" && (
+        {user?.role.toUpperCase() === "ADMIN" && (
           <TabsContent value="users">
             <Card>
               <CardHeader>
