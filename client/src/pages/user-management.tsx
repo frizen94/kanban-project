@@ -281,7 +281,7 @@ export default function UserManagement() {
   };
 
   // Redirecionamento se não for admin
-  if (!authLoading && user && user.role.toLowerCase() !== 'admin') {
+  if (!authLoading && user && user.role !== 'admin') {
     return <Redirect to="/" />;
   }
 
@@ -342,12 +342,12 @@ export default function UserManagement() {
                       <TableCell>
                         <span
                           className={`px-2 py-1 rounded text-xs font-medium ${
-                            user.role.toLowerCase() === 'admin'
+                            user.role === 'admin'
                               ? 'bg-primary/20 text-primary'
                               : 'bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300'
                           }`}
                         >
-                          {user.role.toLowerCase() === 'admin' ? 'Administrador' : 'Usuário'}
+                          {user.role === 'admin' ? 'Administrador' : 'Usuário'}
                         </span>
                       </TableCell>
                       <TableCell>
@@ -676,7 +676,7 @@ export default function UserManagement() {
           <DialogHeader>
             <DialogTitle>Alterar Senha</DialogTitle>
             <DialogDescription>
-              {user?.role.toLowerCase() === 'admin' && user.id !== currentUser?.id 
+              {user?.role === 'admin' && user.id !== currentUser?.id 
               ? `Defina uma nova senha para o usuário ${currentUser?.name}.` 
               : "Digite sua senha atual e escolha uma nova senha."}
             </DialogDescription>
@@ -685,7 +685,7 @@ export default function UserManagement() {
           <Form {...passwordForm}>
             <form onSubmit={passwordForm.handleSubmit(onSubmitChangePassword)} className="space-y-4">
               {/* Campo de senha atual - mostrado apenas quando não é administrador ou quando o admin está alterando sua própria senha */}
-              {(user?.role.toLowerCase() !== 'admin' || user.id === currentUser?.id) && (
+              {(user?.role !== 'admin' || user.id === currentUser?.id) && (
                 <FormField
                   control={passwordForm.control}
                   name="currentPassword"

@@ -11,7 +11,7 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
 
 // Middleware para verificar se o usuário é administrador
 export function isAdmin(req: Request, res: Response, next: NextFunction) {
-  if (req.isAuthenticated() && req.user && req.user.role.toUpperCase() === "ADMIN") {
+  if (req.isAuthenticated() && req.user && req.user.role === "admin") {
     return next();
   }
   res.status(403).json({ message: "Permissão negada. É necessário ser administrador." });
@@ -41,7 +41,7 @@ export async function hasCardAccess(req: Request, res: Response, next: NextFunct
     }
     
     // Se for admin, permitir acesso
-    if (req.user.role && req.user.role.toUpperCase() === "ADMIN") {
+    if (req.user.role && req.user.role === "admin") {
       return next();
     }
     

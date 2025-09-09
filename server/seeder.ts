@@ -18,7 +18,7 @@ const DEFAULT_ADMIN = {
   password: "admin123",
   email: "admin@kanban.local",
   name: "Administrador do Sistema",
-  role: "ADMIN"
+  role: "admin"
 };
 
 /**
@@ -47,7 +47,7 @@ export async function runSeeder() {
         password: hashedPassword,
         email: DEFAULT_ADMIN.email,
         name: DEFAULT_ADMIN.name,
-        role: "ADMIN"
+        role: "admin"
       });
 
       console.log(`✅ Administrador criado com sucesso! ID: ${adminUser.id}`);

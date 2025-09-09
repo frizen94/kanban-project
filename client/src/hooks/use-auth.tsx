@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: "include",
         body: JSON.stringify({
           ...data,
-          role: data.role?.toUpperCase() || "USER"
+          role: data.role || "user"
         }),
       });
 

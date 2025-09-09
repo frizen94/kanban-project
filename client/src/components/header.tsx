@@ -51,7 +51,7 @@ export function Header() {
                   <span>Dashboard</span>
                 </Button>
               </Link>
-              {user.role.toUpperCase() === "ADMIN" && (
+              {user.role === "admin" && (
                 <>
                   <Link href="/dashboard">
                     <Button variant="ghost" size="sm" className="btn-ghost-enhanced">
@@ -130,7 +130,7 @@ export function Header() {
                       <LineChart className="h-4 w-4 mr-3" />
                       Dashboard
                     </DropdownMenuItem>
-                    {user.role.toUpperCase() === "ADMIN" && (
+                    {user.role === "admin" && (
                       <>
                         <DropdownMenuItem onClick={() => navigate("/dashboard")}>
                           <BarChart3 className="h-4 w-4 mr-3" />
@@ -165,7 +165,7 @@ export function Header() {
                     </div>
                   </DropdownMenuItem>
 
-                  {user.role.toUpperCase() === "ADMIN" && (
+                  {user.role === "admin" && (
                     <>
                       <DropdownMenuSeparator className="bg-white/10" />
                       <DropdownMenuItem

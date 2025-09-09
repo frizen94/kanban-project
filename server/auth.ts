@@ -86,7 +86,7 @@ export function setupAuth(app: Express) {
       const totalUsers = await appStorage.getUserCount();
       const isFirstUser = totalUsers === 0;
       
-      if (!isFirstUser && (!req.isAuthenticated() || req.user.role.toLowerCase() !== "admin")) {
+      if (!isFirstUser && (!req.isAuthenticated() || req.user.role !== "admin")) {
         return res.status(403).json({ 
           message: "Permissão negada. Apenas administradores podem cadastrar novos usuários." 
         });
@@ -104,10 +104,10 @@ export function setupAuth(app: Express) {
       
       // O primeiro usuário sempre será admin
       if (isFirstUser) {
-        role = "ADMIN";
+        role = "admin";
       } 
       // Garante que apenas admins podem criar outros admins
-      else if (role.toUpperCase() === "ADMIN" && (!req.isAuthenticated() || req.user.role.toUpperCase() !== "ADMIN")) {
+      else if (role === "admin" && (!req.isAuthenticated() || req.user.role !== "admin")) {
         role = "user";
       }
       
