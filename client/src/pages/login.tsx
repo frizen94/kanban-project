@@ -71,7 +71,7 @@ export default function Login() {
                       <FormItem>
                         <FormLabel>Nome de usuário</FormLabel>
                         <FormControl>
-                          <Input placeholder="seu_usuario" {...field} />
+                          <Input placeholder="Seu usuario" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
