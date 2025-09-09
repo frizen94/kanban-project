@@ -37,7 +37,7 @@ export function Header() {
           </Link>
         </div>
         <div className="flex-1"></div>
-        <nav className="hidden md:flex items-center space-x-1 mr-6"></nav>
+        <nav className="hidden md:flex items-center space-x-1 mr-6">
           {user && (
             <>
               <Link href="/">
