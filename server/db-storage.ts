@@ -596,7 +596,7 @@ export class DatabaseStorage implements IStorage {
               const cardLabels = await this.getCardLabels(card.id);
 
               // Se houver etiquetas, obter detalhes completos
-              let labels = [];
+              let labels: any[] = [];
               if (cardLabels && cardLabels.length > 0) {
                 try {
                   const labelIds = cardLabels.map(cl => cl.labelId);
@@ -615,7 +615,7 @@ export class DatabaseStorage implements IStorage {
                 list,
                 board,
                 members: cardMembers || [],
-                labels: labels || [],
+                labels: labels,
                 isAssignedToUser
               });
             } catch (cardDetailsError) {

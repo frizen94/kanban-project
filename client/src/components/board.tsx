@@ -54,7 +54,7 @@ export function Board({ boardId }: BoardProps) {
 
   return (
     <div className="board-background min-h-screen">
-      {currentBoard && <BoardHeader board={currentBoard} />}
+      {currentBoard && <BoardHeader board={currentBoard} currentView="board" onViewChange={() => {}} />}
       <main className="container-fluid py-6">
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="all-lists" direction="horizontal" type="LIST">
