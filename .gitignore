@@ -33,6 +33,21 @@ yarn-error.log*
 .cache/
 .next/
 
+# Replit specific files
+.replit
+repl.it.lock
+.upm/
+.local/
+attached_assets/
+cookies.txt
+
+# Database files
+*.sqlite
+*.db
+
+# Uploaded files
+public/uploads/
+
 server/public
 vite.config.ts.*
 *.tar.gz
