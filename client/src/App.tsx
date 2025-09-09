@@ -21,16 +21,99 @@ import Register from "@/pages/register";
 function Router() {
   return (
     <Switch>
-      <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
-      <ProtectedRoute path="/" component={Home} />
-      <ProtectedRoute path="/my-dashboard" component={UserDashboard} />
-      <ProtectedRoute path="/account/settings" component={AccountSettings} />
-      <ProtectedRoute path="/dashboard" component={Dashboard} />
-      <ProtectedRoute path="/users/manage" component={UserManagement} />
-      <ProtectedRoute path="/board/:id" component={BoardPage} />
-      <ProtectedRoute path="/board/:id/edit" component={BoardEdit} />
-      <Route component={NotFound} />
+      <Route path="/login">
+        {() => (
+          <>
+            <Header />
+            <main className="flex-1">
+              <Login />
+            </main>
+          </>
+        )}
+      </Route>
+      <Route path="/register">
+        {() => (
+          <>
+            <Header />
+            <main className="flex-1">
+              <Register />
+            </main>
+          </>
+        )}
+      </Route>
+      <ProtectedRoute path="/">
+        {() => (
+          <>
+            <Header />
+            <main className="flex-1">
+              <Home />
+            </main>
+          </>
+        )}
+      </ProtectedRoute>
+      <ProtectedRoute path="/my-dashboard">
+        {() => (
+          <>
+            <Header />
+            <main className="flex-1">
+              <UserDashboard />
+            </main>
+          </>
+        )}
+      </ProtectedRoute>
+      <ProtectedRoute path="/account/settings">
+        {() => (
+          <>
+            <Header />
+            <main className="flex-1">
+              <AccountSettings />
+            </main>
+          </>
+        )}
+      </ProtectedRoute>
+      <ProtectedRoute path="/dashboard">
+        {() => (
+          <>
+            <Header />
+            <main className="flex-1">
+              <Dashboard />
+            </main>
+          </>
+        )}
+      </ProtectedRoute>
+      <ProtectedRoute path="/users/manage">
+        {() => (
+          <>
+            <Header />
+            <main className="flex-1">
+              <UserManagement />
+            </main>
+          </>
+        )}
+      </ProtectedRoute>
+      <ProtectedRoute path="/board/:id">
+        {() => <BoardPage />}
+      </ProtectedRoute>
+      <ProtectedRoute path="/board/:id/edit">
+        {() => (
+          <>
+            <Header />
+            <main className="flex-1">
+              <BoardEdit />
+            </main>
+          </>
+        )}
+      </ProtectedRoute>
+      <Route>
+        {() => (
+          <>
+            <Header />
+            <main className="flex-1">
+              <NotFound />
+            </main>
+          </>
+        )}
+      </Route>
     </Switch>
   );
 }
@@ -41,10 +124,7 @@ function App() {
       <AuthProvider>
         <BoardProvider>
           <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-1">
-              <Router />
-            </main>
+            <Router />
           </div>
           <Toaster />
         </BoardProvider>
