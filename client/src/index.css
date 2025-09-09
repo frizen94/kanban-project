@@ -102,6 +102,12 @@
     -moz-osx-font-smoothing: grayscale;
   }
   
+  /* Header responsivo */
+  header {
+    width: 100vw;
+    max-width: 100%;
+  }
+  
   /* Enhanced scrollbar */
   ::-webkit-scrollbar {
     width: 8px;

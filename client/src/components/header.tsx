@@ -25,7 +25,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 glass-strong border-b border-white/10">
-      <div className="container-fluid flex h-16 max-w-screen-2xl items-center justify-between px-4">
+      <div className="w-full flex h-16 items-center justify-between px-4">
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-3 transition-smooth hover:scale-105">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-600 text-primary-foreground font-bold text-sm shadow-soft">
