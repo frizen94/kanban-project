@@ -6,7 +6,7 @@
 **Password:** `admin123`  
 **Email:** `admin@kanban.local`  
 **Nome:** `Administrador do Sistema`  
-**Função:** `admin`
+**Função:** `ADMIN`
 
 ---
 

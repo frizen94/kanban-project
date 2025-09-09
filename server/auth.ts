@@ -104,10 +104,10 @@ export function setupAuth(app: Express) {
       
       // O primeiro usuário sempre será admin
       if (isFirstUser) {
-        role = "admin";
+        role = "ADMIN";
       } 
       // Garante que apenas admins podem criar outros admins
-      else if (role === "admin" && (!req.isAuthenticated() || req.user.role.toLowerCase() !== "admin")) {
+      else if (role.toUpperCase() === "ADMIN" && (!req.isAuthenticated() || req.user.role.toUpperCase() !== "ADMIN")) {
         role = "user";
       }
       
