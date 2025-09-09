@@ -26,7 +26,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 glass-strong border-b border-white/10">
       <div className="container-fluid flex h-16 max-w-screen-2xl items-center">
-        <div className="mr-6 flex">
+        <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-3 transition-smooth hover:scale-105">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-600 text-primary-foreground font-bold text-sm shadow-soft">
               K
@@ -36,7 +36,8 @@ export function Header() {
             </span>
           </Link>
         </div>
-        <nav className="flex-1 hidden md:flex items-center justify-end space-x-1 mr-6">
+        <div className="flex-1"></div>
+        <nav className="hidden md:flex items-center space-x-1 mr-6"></nav>
           {user && (
             <>
               <Link href="/">
